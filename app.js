@@ -34,7 +34,7 @@ io.sockets.on('connection', function (socket) {
 	var watching = {};
 	socket.on('watch', function (data) {
 		if (!watching[data.window]) watching[data.window] = wscreen.watchScreenWindow(data.window, function (line) {
-			socket.emit('log', { line : line });
+			socket.emit('log', { target: data.window, line : line });
 		});
 	});
 	socket.on('unwatch', function (data) {

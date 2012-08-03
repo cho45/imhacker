@@ -82,8 +82,8 @@ function _unwatchScreenWindow (target, callback) {
 	}
 }
 
-watchScreenWindow(0, function (line) {
-	console.log(line);
-});
+//watchScreenWindow(0, function (line) {
+//	console.log(line);
+//});
 
 this.watchScreenWindow = watchScreenWindow;

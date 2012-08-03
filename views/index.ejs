@@ -20,6 +20,10 @@
 			#windows .btn {
 				padding: 5px 20px;
 			}
+
+			canvas {
+				border: 1px solid #ccc;
+			}
 		</style>
 
 		<!--[if lt IE 9]>
@@ -30,18 +34,20 @@
 		<div class="container">
 			<div class="btn-toolbar" id="windows">
 				<div class="btn-group">
-					<button class="btn">0</button>
-					<button class="btn">1</button>
-					<button class="btn">2</button>
-					<button class="btn">3</button>
-					<button class="btn">4</button>
-					<button class="btn">5</button>
-					<button class="btn">6</button>
-					<button class="btn">7</button>
-					<button class="btn">8</button>
-					<button class="btn">9</button>
+					<button class="btn" data-num="0">0</button>
+					<button class="btn" data-num="1">1</button>
+					<button class="btn" data-num="2">2</button>
+					<button class="btn" data-num="3">3</button>
+					<button class="btn" data-num="4">4</button>
+					<button class="btn" data-num="5">5</button>
+					<button class="btn" data-num="6">6</button>
+					<button class="btn" data-num="7">7</button>
+					<button class="btn" data-num="8">8</button>
+					<button class="btn" data-num="9">9</button>
 				</div>
 			</div>
+
+			<canvas id="time-graph" width="480" height="200"></canvas>
 
 			<h1>log</h1>
 			<pre id="log"></pre>
