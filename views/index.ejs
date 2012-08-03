@@ -21,6 +21,16 @@
 				padding: 5px 20px;
 			}
 
+			#log {
+				overflow: auto;
+				white-space: nowrap;
+				font-family: monospace;
+				font-size: 12px;
+				padding: 10px 10px;
+				background: #eee;
+				border: 1px solid #ccc;
+			}
+
 			canvas {
 				border: 1px solid #ccc;
 			}
@@ -32,6 +42,7 @@
 	</head>
 	<body>
 		<div class="container">
+			<span class="label label-info">screen window</span>
 			<div class="btn-toolbar" id="windows">
 				<div class="btn-group">
 					<button class="btn" data-num="0">0</button>
@@ -47,10 +58,19 @@
 				</div>
 			</div>
 
-			<canvas id="time-graph" width="480" height="200"></canvas>
+			<section>
+				<h1>
+					<span class="label label-info">response time graph rate/1sec</span>
+				</h1>
+				<canvas id="time-graph" width="480" height="200"></canvas>
+			</section>
 
-			<h1>log</h1>
-			<pre id="log"></pre>
+			<section>
+				<h1>
+					<span class="label label-info">log</span>
+				</h1>
+				<div id="log"></div>
+			</section>
 		</div>
 	</body>
 </html>

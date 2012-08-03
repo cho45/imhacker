@@ -60,7 +60,7 @@ ImHacker = {
 	updateResponseStats : function (row) {
 		var self = this;
 		var stats = self.stats;
-		var millisec = +row.taken;
+		var millisec = +row.taken * 10000;
 		var range    = Math.ceil(millisec / 100) * 100;
 		if (range > 10000) range = 10000; // over 10 sec
 		stats[range]++;
@@ -94,7 +94,7 @@ ImHacker = {
 			}
 			ctx.stroke();
 
-			ctx.lineWidth = 1;
+			ctx.lineWidth = 3;
 			ctx.strokeStyle = "#990000";
 
 			ctx.beginPath();
