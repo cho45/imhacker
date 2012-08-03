@@ -1,0 +1,18 @@
+{
+  "name": "imhacker",
+  "version": "0.0.0",
+  "description": "ERROR: No README.md file found!",
+  "main": "app.js",
+  "dependencies": {
+    "socket.io": "~0.9.9",
+    "ejs": "*",
+    "express": "3.x"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": "",
+  "author": "cho45",
+  "license": "BSD"
+}
