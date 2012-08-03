@@ -21,7 +21,7 @@ ImHacker = {
 			var line = data.line;
 			if (!/GET|POST|HEAD|PUT/.test(line)) return;
 
-			self.updateLog(line);
+			self.updateLog(data);
 
 			var row = {};
 			var part = line.split(/\t/);
@@ -51,16 +51,16 @@ ImHacker = {
 		});
 	},
 
-	updateLog : function (line) {
+	updateLog : function (data) {
 		var log = this.log;
-		$('<div/>').text(line).prependTo(log);
+		$('<div/>').text('[' + data.target + '] ' + data.line).prependTo(log);
 		log.find('div:gt(20)').remove();
 	},
 
 	updateResponseStats : function (row) {
 		var self = this;
 		var stats = self.stats;
-		var millisec = +row.taken * 10000;
+		var millisec = +row.taken;
 		var range    = Math.ceil(millisec / 100) * 100;
 		if (range > 10000) range = 10000; // over 10 sec
 		stats[range]++;
