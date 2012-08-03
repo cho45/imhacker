@@ -17,7 +17,7 @@ function watchScreenWindow (target, callback) {
 					if (!fd) {
 						fs.open(logfile, 'r', function (err, d) {
 							if (err) throw err;
-							console.log('file opned: ' + d);
+							console.log('file opened: ' + d);
 							fd = d;
 							read();
 						});
@@ -26,8 +26,8 @@ function watchScreenWindow (target, callback) {
 					}
 
 					function read () {
-						var buffer = new Buffer(1024);
-						fs.read(fd, buffer, 0, 1024, null, function (err, bytesRead, buffer) {
+						var buffer = new Buffer(4096);
+						fs.read(fd, buffer, 0, 4096, null, function (err, bytesRead, buffer) {
 							if (err) throw err; if (!bytesRead) return;
 							for (var i = 0, len = bytesRead; i < len; i++) {
 								if (buffer[i] == 10) { // \n
