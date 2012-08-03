@@ -42,28 +42,115 @@
 	</head>
 	<body>
 		<div class="container">
-			<span class="label label-info">screen window</span>
-			<div class="btn-toolbar" id="windows">
-				<div class="btn-group">
-					<button class="btn" data-num="0">0</button>
-					<button class="btn" data-num="1">1</button>
-					<button class="btn" data-num="2">2</button>
-					<button class="btn" data-num="3">3</button>
-					<button class="btn" data-num="4">4</button>
-					<button class="btn" data-num="5">5</button>
-					<button class="btn" data-num="6">6</button>
-					<button class="btn" data-num="7">7</button>
-					<button class="btn" data-num="8">8</button>
-					<button class="btn" data-num="9">9</button>
+			<div class="row">
+				<div class="span6">
+					<h1>
+						<span class="label label-info">screen window</span>
+						<small style="font-size: 12px">select screen window number to watch</small>
+					</h1>
+					<div class="btn-toolbar" id="windows">
+						<div class="btn-group">
+							<button class="btn" data-num="0">0</button>
+							<button class="btn" data-num="1">1</button>
+							<button class="btn" data-num="2">2</button>
+							<button class="btn" data-num="3">3</button>
+							<button class="btn" data-num="4">4</button>
+							<button class="btn" data-num="5">5</button>
+							<button class="btn" data-num="6">6</button>
+							<button class="btn" data-num="7">7</button>
+							<button class="btn" data-num="8">8</button>
+							<button class="btn" data-num="9">9</button>
+						</div>
+					</div>
 				</div>
 			</div>
 
-			<section>
-				<h1>
-					<span class="label label-info">response time graph y=rate, x=sec</span>
-				</h1>
-				<canvas id="time-graph" width="560" height="200"></canvas>
-			</section>
+			<div class="row">
+				<div class="span6">
+					<h1>
+						<span class="label label-info">response time graph y=rate, x=sec</span>
+					</h1>
+					<canvas id="time-graph" width="560" height="200"></canvas>
+				</div>
+				<div class="span3">
+					<h1>
+						<span class="label label-info">response code</span>
+					</h1>
+					<table class="table table-condensed">
+						<tr>
+							<th>
+								<span class="label label-success">20x : success</span>
+							</th>
+							<td>
+								0
+							</td>
+						</tr>
+						<tr>
+							<th>
+								<span class="label label-warning">30x : redirect</span>
+							</th>
+							<td>
+								0
+							</td>
+						</tr>
+						<tr>
+							<th>
+								<span class="label label-warning">40x : client error</span>
+							</th>
+							<td>
+								0
+							</td>
+						</tr>
+						<tr>
+							<th>
+								<span class="label label-important">50x : server error</span>
+							</th>
+							<td>
+								0
+							</td>
+						</tr>
+					</table>
+				</div>
+				<div class="span3">
+					<h1>
+						<span class="label label-info">request method</span>
+					</h1>
+					<table class="table table-condensed">
+						<tr>
+							<th>
+								<span class="label label-success">GET</span>
+							</th>
+							<td>
+								0
+							</td>
+						</tr>
+						<tr>
+							<th>
+								<span class="label label-warning">POST</span>
+							</th>
+							<td>
+								0
+							</td>
+						</tr>
+						<tr>
+							<th>
+								<span class="label label-info">HEAD</span>
+							</th>
+							<td>
+								0
+							</td>
+						</tr>
+						<tr>
+							<th>
+								<span class="label">OTHERS</span>
+							</th>
+							<td>
+								0
+							</td>
+						</tr>
+					</table>
+				</div>
+			</div>
 
 			<section>
 				<h1>
@@ -71,6 +158,8 @@
 				</h1>
 				<div id="log"></div>
 			</section>
+
+			foo
 		</div>
 	</body>
 </html>
