@@ -22,12 +22,17 @@
 			}
 
 			#log {
+				position: fixed;
+				bottom: 0;
+				left: 0;
+				width: 100%;
 				overflow: auto;
 				white-space: nowrap;
 				font-family: monospace;
 				font-size: 12px;
-				padding: 10px 10px;
-				background: #eee;
+				background: #000;
+				opacity: 0.8;
+				color: #fff;
 				border: 1px solid #ccc;
 			}
 
@@ -70,7 +75,7 @@
 					<h1>
 						<span class="label label-info">response time graph y=rate, x=sec</span>
 					</h1>
-					<canvas id="time-graph" width="560" height="200"></canvas>
+					<canvas id="time-graph" width="560" height="400"></canvas>
 				</div>
 				<div class="span3">
 					<h1>
@@ -150,16 +155,40 @@
 						</tr>
 					</table>
 				</div>
+				<div class="span3">
+					<h1>
+						<span class="label label-info">response time</span>
+					</h1>
+					<table class="table table-condensed">
+						<tr>
+							<th>
+								<span class="label label-success">fastest</span>
+							</th>
+							<td>
+								<span id="time-fastest">0</span>
+							</td>
+						</tr>
+						<tr>
+							<th>
+								<span class="label">average</span>
+							</th>
+							<td>
+								<span id="time-average">0</span>
+							</td>
+						</tr>
+						<tr>
+							<th>
+								<span class="label label-success">slowest</span>
+							</th>
+							<td>
+								<span id="time-slowest">0</span>
+							</td>
+						</tr>
+					</table>
+				</div>
 			</div>
 
-			<section>
-				<h1>
-					<span class="label label-info">log</span>
-				</h1>
-				<div id="log"></div>
-			</section>
-
-			foo
+			<div id="log"></div>
 		</div>
 	</body>
 </html>

@@ -69,8 +69,14 @@ ImHacker = {
 
 	updateLog : function (data) {
 		var log = this.log;
-		$('<div/>').text('[' + data.target + '] ' + data.line).prependTo(log);
-		log.find('div:gt(20)').remove();
+		var line = $('<div/>').text('[' + data.target + '] ' + data.line).prependTo(log);
+		log.find('div:gt(5)').remove();
+
+		setTimeout(function () {
+			line.fadeOut('fast', function () {
+				line.remove();
+			});
+		}, 5000);
 	},
 
 	updateResponseStats : function (row) {
