@@ -16,6 +16,7 @@ ImHacker = {
 			HEAD   : $('#method-HEAD'),
 			OTHERS : $('#method-OTHERS')
 		};
+		self.redraw = true;
 
 		self.timeStats = { total: 0 };
 		for (var range = 0; range <= 10000; range += 100) self.timeStats[range] = 0;
@@ -83,7 +84,7 @@ ImHacker = {
 
 		self.codeStats[Math.floor(+row.status / 100) * 100]++;
 		self.methodStats[row.req.split(/\s/)[0]]++;
-		console.log(self.methodStats);
+		self.redraw = true;
 	},
 
 	updateGraphs : function () {
@@ -98,6 +99,8 @@ ImHacker = {
 		var h      = +canvas.height;
 
 		requestAnimationFrame(function () {
+			if (!self.redraw) return requestAnimationFrame(arguments.callee);
+
 			// x = millisec
 			// y = %
 			ctx.clearRect(0, 0, w, h);
@@ -139,7 +142,8 @@ ImHacker = {
 		});
 
 		function requestAnimationFrame (callback) {
-			(window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame || setTimeout)(callback, 16);
+			// (window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame || setTimeout)(callback, 16);
+			setTimeout(callback, 1000);
 		}
 	}
 };

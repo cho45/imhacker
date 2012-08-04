@@ -45,7 +45,10 @@ io.sockets.on('connection', function (socket) {
 	});
 
 	socket.on('disconnect', function () {
-		io.sockets.emit('user disconnected');
+		console.log('disconnect');
+		for (var key in watching) if (watching.hasOwnProperty(key)) {
+			watching[key].unwatch();
+		}
 	});
 });
 
