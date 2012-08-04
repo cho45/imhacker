@@ -16,9 +16,14 @@ ImHacker = {
 			HEAD   : $('#method-HEAD'),
 			OTHERS : $('#method-OTHERS')
 		};
+		self.time = {
+			fastest : $('#time-fastest'),
+			average : $('#time-average'),
+			slowest : $('#time-slowest')
+		};
 		self.redraw = true;
 
-		self.timeStats = { total: 0 };
+		self.timeStats = { total: 0, fastest: 1/0, average: NaN, slowest : 0 };
 		for (var range = 0; range <= 10000; range += 100) self.timeStats[range] = 0;
 		self.codeStats = { 200 : 0, 300: 0, 400: 0, 500: 0 };
 		self.methodStats = { GET : 0, POST : 0, HEAD: 0, OTHERS : 0 };
@@ -87,6 +92,9 @@ ImHacker = {
 		if (range > 10000) range = 10000; // over 10 sec
 		timeStats[range]++;
 		timeStats.total++;
+		if (timeStats.fastest > millisec) timeStats.fastest = millisec;
+		if (timeStats.slowest < millisec) timeStats.slowest = millisec;
+		timeStats.average = isNaN(timeStats.average) ? millisec : (timeStats.average + millisec) / 2;
 
 		self.codeStats[Math.floor(+row.status / 100) * 100]++;
 		self.methodStats[row.req.split(/\s/)[0]]++;
@@ -137,12 +145,18 @@ ImHacker = {
 			ctx.stroke();
 
 			for (var key in codeStats) if (codeStats.hasOwnProperty(key)) {
+				if (!self.code[key]) continue;
 				self.code[key].text(codeStats[key]);
 			}
 
 			for (var key in methodStats) if (methodStats.hasOwnProperty(key)) {
+				if (!self.method[key]) continue;
 				self.method[key].text(methodStats[key]);
 			}
+
+			self.time.fastest.text(self.timeStats.fastest.toFixed(2));
+			self.time.average.text(self.timeStats.average.toFixed(2));
+			self.time.slowest.text(self.timeStats.slowest.toFixed(2));
 
 			requestAnimationFrame(arguments.callee);
 		});
