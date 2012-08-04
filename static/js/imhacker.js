@@ -4,8 +4,23 @@ ImHacker = {
 	init : function () {
 		var self = this;
 		self.log = $('#log');
-		self.stats = { total: 0 };
-		for (var range = 0; range <= 10000; range += 100) self.stats[range] = 0;
+		self.code = {
+			200 : $('#code-20x'),
+			300 : $('#code-30x'),
+			400 : $('#code-40x'),
+			500 : $('#code-50x')
+		};
+		self.method = {
+			GET    : $('#method-GET'),
+			POST   : $('#method-POST'),
+			HEAD   : $('#method-HEAD'),
+			OTHERS : $('#method-OTHERS')
+		};
+
+		self.timeStats = { total: 0 };
+		for (var range = 0; range <= 10000; range += 100) self.timeStats[range] = 0;
+		self.codeStats = { 200 : 0, 300: 0, 400: 0, 500: 0 };
+		self.methodStats = { GET : 0, POST : 0, HEAD: 0, OTHERS : 0 };
 
 		self.prepareSocket();
 		self.bindEvents();
@@ -59,17 +74,23 @@ ImHacker = {
 
 	updateResponseStats : function (row) {
 		var self = this;
-		var stats = self.stats;
+		var timeStats = self.timeStats;
 		var millisec = +row.taken;
 		var range    = Math.ceil(millisec / 100) * 100;
 		if (range > 10000) range = 10000; // over 10 sec
-		stats[range]++;
-		stats.total++;
+		timeStats[range]++;
+		timeStats.total++;
+
+		self.codeStats[Math.floor(+row.status / 100) * 100]++;
+		self.methodStats[row.req.split(/\s/)[0]]++;
+		console.log(self.methodStats);
 	},
 
 	updateGraphs : function () {
 		var self = this;
-		var stats = self.stats;
+		var timeStats = self.timeStats;
+		var codeStats = self.codeStats;
+		var methodStats = self.methodStats;
 
 		var canvas = document.getElementById('time-graph');
 		var ctx    = canvas.getContext('2d');
@@ -100,11 +121,19 @@ ImHacker = {
 			ctx.beginPath();
 			ctx.moveTo(0, h);
 			for (var range = 0, count = 0; range <= 10000; range += 100) {
-				count += stats[range];
-				var rate = count / stats.total;
+				count += timeStats[range];
+				var rate = count / timeStats.total;
 				ctx.lineTo(w / 10000 * range, h * (1 - rate));
 			}
 			ctx.stroke();
+
+			for (var key in codeStats) if (codeStats.hasOwnProperty(key)) {
+				self.code[key].text(codeStats[key]);
+			}
+
+			for (var key in methodStats) if (methodStats.hasOwnProperty(key)) {
+				self.method[key].text(methodStats[key]);
+			}
 
 			requestAnimationFrame(arguments.callee);
 		});
