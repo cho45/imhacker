@@ -261,18 +261,17 @@ ImHacker = {
 			ctx.clearRect(0, 0, w, h);
 
 			ctx.lineWidth = 1;
-			ctx.strokeStyle = "#999999";
 			ctx.font = "10px Arial";
-			ctx.fillStyle = "#999999";
 
 			for (var i = 0; i < 10; i++) {
 				if (i > 0) {
+					ctx.fillStyle = "#CCCCCC";
 					ctx.fillRect(w / 10 * i, 0, 1, h);
 					ctx.fillRect(0, h / 10 * i, w, 1);
 				}
 
+				ctx.fillStyle = "#999999";
 				ctx.fillText(i + "sec", w / 10 * i + 3, h - 2);
-
 				ctx.fillText((100 - i * 10) + "%", 2, h / 10 * i + 10);
 			}
 
@@ -328,10 +327,10 @@ ImHacker = {
 			ctx.clearRect(0, 0, w, h);
 
 			ctx.lineWidth = 1;
-			ctx.strokeStyle = "#999999";
 			ctx.fillStyle   = "#999999";
 			ctx.font = "10px Arial";
-			ctx.fillText(scale / 2, 2, h / 2 - 2);
+			ctx.fillText(scale / 2 + ' req/sec', 2, h / 2 - 2); // '
+			ctx.fillStyle   = "#CCCCCC";
 			ctx.fillRect(0, h / 2, w, 1);
 
 			var now = Math.floor(new Date().getTime() / 1000 / self.timeSlice) * self.timeSlice;
