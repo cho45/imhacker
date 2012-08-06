@@ -265,19 +265,16 @@ ImHacker = {
 			ctx.font = "10px Arial";
 			ctx.fillStyle = "#999999";
 
-			ctx.beginPath();
 			for (var i = 0; i < 10; i++) {
-				ctx.moveTo(w / 10 * i, 0);
-				ctx.lineTo(w / 10 * i, h);
-
-				ctx.moveTo(0, h / 10 * i);
-				ctx.lineTo(w, h / 10 * i);
+				if (i > 0) {
+					ctx.fillRect(w / 10 * i, 0, 1, h);
+					ctx.fillRect(0, h / 10 * i, w, 1);
+				}
 
 				ctx.fillText(i + "sec", w / 10 * i + 3, h - 2);
 
 				ctx.fillText((100 - i * 10) + "%", 2, h / 10 * i + 10);
 			}
-			ctx.stroke();
 
 			ctx.lineWidth = 3;
 			ctx.strokeStyle = "#990000";
@@ -322,9 +319,9 @@ ImHacker = {
 			var barw   = 5;
 
 			var max = 0;
-			for (var i = 0, it; (it = requestHistory[i]); i++) {
-				if (it.count > max) max = it.count;
-			}
+			for (var i = 0, it; (it = requestHistory[i]); i++) if (it.count > max) max = it.count;
+
+			var scale = Math.max(Math.ceil(max / 10) * 10, 10);
 
 			// x = millisec
 			// y = %
@@ -332,13 +329,16 @@ ImHacker = {
 
 			ctx.lineWidth = 1;
 			ctx.strokeStyle = "#999999";
+			ctx.fillStyle   = "#999999";
 			ctx.font = "10px Arial";
+			ctx.fillText(scale / 2, 2, h / 2 - 2);
+			ctx.fillRect(0, h / 2, w, 1);
 
 			var now = Math.floor(new Date().getTime() / 1000 / self.timeSlice) * self.timeSlice;
 			for (var i = 0, len = w / 5; i < len; i++) {
 				ctx.fillStyle = (now % 2 === 0) ? "#999999" : "#cccccc";
 				if (requestHistoryMap[now]) {
-					var rh = requestHistoryMap[now].count / max * h;
+					var rh = requestHistoryMap[now].count / scale * h;
 					var x  = w - (i * 5);
 					var y  = h - rh;
 					ctx.fillRect(x, y, 5, rh);
