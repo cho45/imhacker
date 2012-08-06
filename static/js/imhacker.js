@@ -113,10 +113,10 @@ ImHacker = {
 
 			var row = {};
 			if (localStorage.formatName == 'tsv') {
-				var part = line.split(/\t/);
+				var part = line.replace(/^\s+/, '').split(/\t/);
 				for (var i = 0, len = part.length; i < len; i++) {
 					var kv = part[i].split(/:/);
-					row[ kv[0] ] = kv[1];
+					row[ kv.shift() ] = kv.join(':');
 				}
 				var r = row.req.split(/ /);
 
@@ -125,7 +125,7 @@ ImHacker = {
 				row['protocol'] = r[1];
 				if (row.status && !row.code) row['code'] = +row.status;
 				row['millisec'] = +row['taken'];
-				ret['datetime'] = ImHacker.parseDateTime(ret['time']);
+				row['datetime'] = ImHacker.parseDateTime(row['time']);
 			} else {
 				row = ImHacker.AccessLogParser.parse(localStorage.formatName, line);
 				if (!row) return;
@@ -197,28 +197,38 @@ ImHacker = {
 	updateResponseStats : function (row) {
 		var self = this;
 		var timeStats = self.timeStats;
-		var millisec = row.millisec;
-		var range    = Math.ceil(millisec / 100) * 100;
-		if (range > 10000) range = 10000; // over 10 sec
-		timeStats[range]++;
-		timeStats.total++;
-		if (timeStats.fastest > millisec) timeStats.fastest = millisec;
-		if (timeStats.slowest < millisec) timeStats.slowest = millisec;
-		timeStats.average = isNaN(timeStats.average) ? millisec : (timeStats.average + millisec) / 2;
 
-		self.codeStats[Math.floor(row.code / 100) * 100]++;
-		self.methodStats[row.method]++;
+		if (row.millisec) {
+			var millisec = row.millisec;
+			var range    = Math.ceil(millisec / 100) * 100;
+			if (range > 10000) range = 10000; // over 10 sec
+			timeStats[range]++;
+			timeStats.total++;
+			if (timeStats.fastest > millisec) timeStats.fastest = millisec;
+			if (timeStats.slowest < millisec) timeStats.slowest = millisec;
+			timeStats.average = isNaN(timeStats.average) ? millisec : (timeStats.average + millisec) / 2;
+		}
 
-		var timeSlice = Math.floor(row.datetime.valueOf() / 1000 / self.timeSlice) * self.timeSlice; // per 3sec
-		if (!self.requestHistoryMap[timeSlice]) {
-			self.requestHistoryMap[timeSlice] = { time : timeSlice, count: 1 };
-			self.requestHistory.push(self.requestHistoryMap[timeSlice]);
-			if (self.requestHistory.length > 1000) {
-				var tooOld = self.requestHistory.shift();
-				delete self.requestHistoryMap[tooOld.time];
+		if (row.code) {
+			self.codeStats[Math.floor(row.code / 100) * 100]++;
+		}
+
+		if (row.method) {
+			self.methodStats[row.method]++;
+		}
+
+		if (row.datetime) {
+			var timeSlice = Math.floor(row.datetime.getTime() / 1000 / self.timeSlice) * self.timeSlice; // per 3sec
+			if (!self.requestHistoryMap[timeSlice]) {
+				self.requestHistoryMap[timeSlice] = { time : timeSlice, count: 1 };
+				self.requestHistory.push(self.requestHistoryMap[timeSlice]);
+				if (self.requestHistory.length > 1000) {
+					var tooOld = self.requestHistory.shift();
+					delete self.requestHistoryMap[tooOld.time];
+				}
+			} else {
+				self.requestHistoryMap[timeSlice].count++;
 			}
-		} else {
-			self.requestHistoryMap[timeSlice].count++;
 		}
 
 		self.redraw = true;
