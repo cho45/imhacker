@@ -10,7 +10,7 @@ function watchScreenWindow (target, callback) {
 		watching[target] = { callbacks : [ callback ] };
 
 		var logfile = os.tmpDir() + 'imhacker' + Math.random().toString(32);
-		child_process.spawn('screen', ["-X", "eval", "select " + target, "log off", "logfile " + logfile, "logfile flush 1", "log on", "select " + process.env['WINDOW']]).on('exit', function () {
+		child_process.spawn('screen', ["-X", "eval", "select " + target, "log off", "logfile " + logfile, "logfile flush 1", "log on", "other"]).on('exit', function () {
 			var fd, buffers = [];
 			while (1) try {
 				watching[target].watcher = fs.watch(logfile, function (e) {
@@ -77,7 +77,7 @@ function _unwatchScreenWindow (target, callback) {
 	if (!watching[target].callbacks.length) {
 		console.log('empty callbacks...');
 		watching[target].watcher.close();
-		child_process.spawn('screen', ["-X", "eval", "select " + target, "log off", "select " + process.env['WINDOW']]).on('exit', function () { });
+		child_process.spawn('screen', ["-X", "eval", "select " + target, "log off", "other"]).on('exit', function () { });
 		delete watching[target];
 	}
 }
