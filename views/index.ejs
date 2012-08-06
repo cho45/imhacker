@@ -68,6 +68,15 @@
 						</div>
 					</div>
 				</div>
+				<div class="span6" style="position: relative">
+					<a class="btn btn-small" data-toggle="modal" href="#settings" style="position: absolute; top: 0; right: 0;"><i class="icon-cog"></i> Settings (<span id="format-name"></span>)</a>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="span12">
+					<canvas id="history-graph" width="1170" height="100"></canvas>
+				</div>
 			</div>
 
 			<div class="row">
@@ -75,7 +84,7 @@
 					<h1>
 						<span class="label label-info">response time graph y=rate, x=sec</span>
 					</h1>
-					<canvas id="time-graph" width="560" height="400"></canvas>
+					<canvas id="time-graph" width="560" height="300"></canvas>
 				</div>
 				<div class="span3">
 					<h1>
@@ -189,6 +198,35 @@
 			</div>
 
 			<div id="log"></div>
+
+			<div id="settings" class="modal hide" style="width: 800px; margin: -250px 0 0 -400px">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">×</button>
+					<h3>Settings</h3>
+				</div>
+				<div class="modal-body">
+					<form class="form-horizontal" id="form-settings">
+						<div class="control-group">
+							<label class="control-label" for="">Log format</label>
+							<div class="controls">
+								<select name="format-name">
+									<option value="combined">combined</option>
+									<option value="common">common</option>
+									<option value="tsv">tsv</option>
+								</select>
+								<p style="padding: 10px 10px 0 0">
+									<textarea name="log-format" style="width: 100%; height: 10em">
+									</textarea>
+								</p>
+							</div>
+						</div>
+					</form>
+				</div>
+				<div class="modal-footer">
+					<a href="#" class="btn" data-dismiss="modal">Cancel</a>
+					<a href="#" class="btn btn-primary">Save</a>
+				</div>
+			</div>
 		</div>
 	</body>
 </html>
