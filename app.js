@@ -45,12 +45,24 @@ io.sockets.on('connection', function (socket) {
 	});
 
 	socket.on('disconnect', function () {
-		console.log('disconnect');
 		for (var key in watching) if (watching.hasOwnProperty(key)) {
 			watching[key].unwatch();
 		}
 	});
 });
 
-
 server.listen(3000);
+
+process.on('SIGINT', function () {
+	for (var key in io.sockets.sockets) if (io.sockets.sockets.hasOwnProperty(key)) {
+		io.sockets.sockets[key].disconnect();
+	}
+	process.exit();
+});
+
+process.on('SIGTERM', function () {
+	for (var key in io.sockets.sockets) if (io.sockets.sockets.hasOwnProperty(key)) {
+		io.sockets.sockets[key].disconnect();
+	}
+	process.exit();
+});
