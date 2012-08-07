@@ -2,10 +2,9 @@
 
 var http    = require('http');
 var express = require('express');
-var path = require('path');
+var path    = require('path');
 
-var wscreen  = require('./watch_screen');
-
+var wscreen = require('./lib/watch_screen');
 
 var app    = express();
 var server = http.createServer(app);

@@ -76,23 +76,64 @@
 			<div class="row">
 				<div class="span12">
 					<h1>
-						<span class="label label-info">request history (req/sec)</span>
+						<span class="label label-info">request history</span>
+						<small style="font-size: 12px">req/sec</small>
 					</h1>
 					<canvas id="history-graph" width="1170" height="100"></canvas>
 				</div>
 			</div>
 
 			<div class="row">
-				<div class="span6">
+				<div class="span6" style="position: relative">
 					<h1>
-						<span class="label label-info">response time graph y=rate, x=sec</span>
+						<span class="label label-info">response time graph</span>
+						<small style="font-size: 12px">y=rate, x=sec</small>
 					</h1>
 					<canvas id="time-graph" width="560" height="300"></canvas>
+					<div style="position: absolute; bottom: 40px; right: 20px">
+						<span class="label label-success">fastest</span>&nbsp;<span id="time-fastest">0</span>
+						<span class="label label-success">slowest</span>&nbsp;<span id="time-slowest">0</span>
+					</div>
 				</div>
 				<div class="span3">
 					<h1>
 						<span class="label label-info">response code</span>
 					</h1>
+
+					<!-- div class="bar-graph-container label" id="response-code-graph">
+						<div title="20x 80%" style="width: 84%;" class="bar-graph-bar label-success">
+							20x
+						</div><div title="30x 10%" style="width: 10%;" class="bar-graph-bar label-info">
+							30x
+						</div><div title="40x 5%" style="width: 5%;" class="bar-graph-bar label-warning">
+							40x
+						</div><div title="50x 5%" style="width: 1%;" class="bar-graph-bar label-important">
+							50x
+						</div>
+						<script>
+							$('#response-code-graph').tooltip({ selector: "div.bar-graph-bar" });
+						</script>
+						<style scoped>
+							.bar-graph-container {
+								border: 1px solid #ccc;
+								padding: 0;
+								cursor: default;
+							}
+							.bar-graph-bar {
+								display: inline-block;
+								padding: 0;
+								margin: 0;
+								height: 15px;
+								font-weight: bold;
+								color: #fff;
+								font-size: 10px;
+								line-height:15px;
+								text-align: center;
+								overflow: hidden;
+								text-overflow: ellipsis;
+							}
+						</style>
+					</div -->
 					<table class="table table-condensed">
 						<tr>
 							<th>
@@ -163,37 +204,6 @@
 							</th>
 							<td>
 								<span id="method-OTHERS">0</span>
-							</td>
-						</tr>
-					</table>
-				</div>
-				<div class="span3">
-					<h1>
-						<span class="label label-info">response time</span>
-					</h1>
-					<table class="table table-condensed">
-						<tr>
-							<th>
-								<span class="label label-success">fastest</span>
-							</th>
-							<td>
-								<span id="time-fastest">0</span>
-							</td>
-						</tr>
-						<tr>
-							<th>
-								<span class="label">average</span>
-							</th>
-							<td>
-								<span id="time-average">0</span>
-							</td>
-						</tr>
-						<tr>
-							<th>
-								<span class="label label-success">slowest</span>
-							</th>
-							<td>
-								<span id="time-slowest">0</span>
 							</td>
 						</tr>
 					</table>

@@ -51,7 +51,6 @@ ImHacker = {
 		};
 		self.time = {
 			fastest : $('#time-fastest'),
-			average : $('#time-average'),
 			slowest : $('#time-slowest')
 		};
 		self.redraw = true;
@@ -73,10 +72,10 @@ ImHacker = {
 
 	initStats : function () {
 		var self = this;
-		self.timeStats = { total: 0, fastest: 1/0, average: NaN, slowest : 0 };
+		self.timeStats = { total: 0, fastest: 1/0, slowest : 0 };
 		for (var range = 0; range <= 10000; range += 100) self.timeStats[range] = 0;
 
-		self.codeStats = { 200 : 0, 300: 0, 400: 0, 500: 0 };
+		self.codeStats = { 200 : 0, 300: 0, 400: 0, 500: 0, total: 0 };
 		self.methodStats = { GET : 0, POST : 0, HEAD: 0, OTHERS : 0 };
 		self.requestHistory = [];
 		self.requestHistoryMap = {};
@@ -198,7 +197,7 @@ ImHacker = {
 		var self = this;
 		var timeStats = self.timeStats;
 
-		if (row.millisec) {
+		if (typeof row.millisec == 'number' && !isNaN(row.millisec)) {
 			var millisec = row.millisec;
 			var range    = Math.ceil(millisec / 100) * 100;
 			if (range > 10000) range = 10000; // over 10 sec
@@ -206,11 +205,11 @@ ImHacker = {
 			timeStats.total++;
 			if (timeStats.fastest > millisec) timeStats.fastest = millisec;
 			if (timeStats.slowest < millisec) timeStats.slowest = millisec;
-			timeStats.average = isNaN(timeStats.average) ? millisec : (timeStats.average + millisec) / 2;
 		}
 
 		if (row.code) {
 			self.codeStats[Math.floor(row.code / 100) * 100]++;
+			self.codeStats.total++;
 		}
 
 		if (row.method) {
@@ -222,7 +221,7 @@ ImHacker = {
 			if (!self.requestHistoryMap[timeSlice]) {
 				self.requestHistoryMap[timeSlice] = { time : timeSlice, count: 1 };
 				self.requestHistory.push(self.requestHistoryMap[timeSlice]);
-				if (self.requestHistory.length > 1000) {
+				while (self.requestHistory.length > 1000) {
 					var tooOld = self.requestHistory.shift();
 					delete self.requestHistoryMap[tooOld.time];
 				}
@@ -236,16 +235,15 @@ ImHacker = {
 
 	updateGraphs : function () {
 		var self = this;
-		var methodStats = self.methodStats;
 
 		requestAnimationFrame(function () {
-			if (!self.redraw) return requestAnimationFrame(arguments.callee);
-
-			updateTimeStats();
-			updateCodeStats();
-			updateMethodStats();
+			if (self.redraw) {
+				updateTimeStats();
+				updateCodeStats();
+				updateMethodStats();
+				self.redraw = false;
+			}
 			updateRequestHistory();
-
 			requestAnimationFrame(arguments.callee);
 		});
 
@@ -288,7 +286,6 @@ ImHacker = {
 			ctx.stroke();
 
 			self.time.fastest.text(self.timeStats.fastest.toFixed(2));
-			self.time.average.text(self.timeStats.average.toFixed(2));
 			self.time.slowest.text(self.timeStats.slowest.toFixed(2));
 		}
 
@@ -301,6 +298,7 @@ ImHacker = {
 		}
 
 		function updateMethodStats () {
+			var methodStats = self.methodStats;
 			for (var key in methodStats) if (methodStats.hasOwnProperty(key)) {
 				if (!self.method[key]) continue;
 				self.method[key].text(methodStats[key]);
