@@ -29,6 +29,14 @@ app.get('/', function (req, res) {
 	res.render('index', {});
 });
 
+app.post('/in', function (req, res) {
+	var target = req.query.name;
+	req.setEncoding('utf-8');
+	req.on('data', function (data) {
+		io.sockets.emit('log', { target : target, line : data });
+	});
+});
+
 io.sockets.on('connection', function (socket) {
 	var watching = {};
 	socket.on('watch', function (data) {

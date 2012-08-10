@@ -19,14 +19,22 @@ ImHacker = {
 		return function (string) {
 			var local, tz;
 			if (/(\d\d)\/([^\/]+)\/(\d{4}):(\d\d):(\d\d):(\d\d) ([\-\+]\d\d)(\d\d)/.test(string)) {
+				// 06/Aug/2012:19:10:14 +0900
 				// 手元の時計のタイムゾーンの影響がないように計算する
 				local = Date.UTC(+RegExp.$3, moy[RegExp.$2], +RegExp.$1, +RegExp.$4, +RegExp.$5, +RegExp.$6).valueOf() / 1000;
 				tz    = (+RegExp.$7 * (60 * 60)) + (+RegExp.$8 * 60);
 				return new Date((local - tz) * 1000);
 			} else
 			if (/(\d\d\d\d)-(\d\d)-(\d\d)[ T]?(\d\d):(\d\d):(\d\d)(?:([\-\+]\d\d):(\d\d)|Z)/.test(string)) {
+				// 2012-01-01T00:00:00+09:00
 				local = Date.UTC(+RegExp.$1, +RegExp.$2 - 1, +RegExp.$3, +RegExp.$4, +RegExp.$5, +RegExp.$6).valueOf() / 1000;
 				tz    = RegExp.$7 ? (+RegExp.$7 * (60 * 60)) + (+RegExp.$8 * 60) : 0;
+				return new Date((local - tz) * 1000);
+			} else 
+			if (/... (...) (\d\d) (\d{4}) (\d\d):(\d\d):(\d\d) GMT([\-\+]\d\d)(\d\d)/.test(string)) {
+				// Fri Aug 10 2012 22:12:14 GMT+0900 (JST)
+				local = Date.UTC(+RegExp.$3, moy[RegExp.$1], +RegExp.$2, +RegExp.$4, +RegExp.$5, +RegExp.$6).valueOf() / 1000;
+				tz    = (+RegExp.$7 * (60 * 60)) + (+RegExp.$8 * 60);
 				return new Date((local - tz) * 1000);
 			}
 		};

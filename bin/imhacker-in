@@ -1,0 +1,23 @@
+#!/usr/bin/env node
+
+var http = require('http');
+
+var req = http.request({
+	host   : 'localhost',
+	port   : 3000,
+	path   : '/in?name=stdin',
+	method : 'POST'
+});
+
+process.stdin.resume();
+process.stdin.setEncoding('utf8');
+
+process.stdin.on('data', function (chunk) {
+	process.stdout.write(chunk);
+	// TODO buffering
+	req.write(chunk);
+});
+
+setInterval(function () {
+}, 1000);
+
