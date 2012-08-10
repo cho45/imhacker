@@ -33,6 +33,8 @@ ImHacker = {
 	} (),
 
 	timeSlice : 1,
+	timeThreshold: 1,
+	ignorePath: null,
 
 	init : function () {
 		var self = this;
@@ -59,30 +61,45 @@ ImHacker = {
 		self.settings.form = $('#form-settings');
 		self.settings.logFormat = self.settings.form.find('[name="log-format"]');
 		self.settings.formatName = self.settings.form.find('[name="format-name"]');
+		self.settings.ignorePath = self.settings.form.find('[name="ignore-path"]');
+		self.settings.timeThreshold = self.settings.form.find('[name="time-threshold"]');
 
 		self.initStats();
 
 		self.bindEvents();
 		self.loadSettings();
 		self.prepareSocket();
-		self.updateGraphs();
+		self.drawGraphs();
 
 		// $('#windows').find('.btn[data-num=0]').click();
 	},
 
 	initStats : function () {
 		var self = this;
-		self.timeStats = { total: 0, fastest: 1/0, slowest : 0 };
-		for (var range = 0; range <= 10000; range += 100) self.timeStats[range] = 0;
+		self.timeStats = { total: 0, fastest: 1/0, slowest : 0, GET : { total: 0 }, POST : { total: 0 } };
+		for (var range = 0; range <= 10000; range += 100) {
+			self.timeStats[range] = 0;
+			self.timeStats.GET[range] = 0;
+			self.timeStats.POST[range] = 0;
+		}
 
 		self.codeStats = { 200 : 0, 300: 0, 400: 0, 500: 0, total: 0 };
 		self.methodStats = { GET : 0, POST : 0, HEAD: 0, OTHERS : 0 };
+
 		self.requestHistory = [];
 		self.requestHistoryMap = {};
+
+		self.errorStats = {};
+
+		self.trackingStats = {};
 	},
 
 	loadSettings : function () {
 		var self = this;
+		if (!localStorage.logFormat) {
+			$('#settings').modal();
+		}
+
 		self.settings.logFormat.val(localStorage.logFormat ||
 			('LogFormat "%h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\"" combined') + "\n" +
 			('LogFormat "%h %l %u %t \"%r\" %>s %b" common') + "\n" +
@@ -91,6 +108,8 @@ ImHacker = {
 		).change();
 
 		self.settings.formatName.val(localStorage.formatName || 'combined');
+		self.settings.timeThreshold.val(localStorage.timeThreshold || 1);
+		self.settings.ignorePath.val(localStorage.ignorePath || '^/(images|img|css|js|static)/');
 		self.updateSettings();
 	},
 
@@ -98,7 +117,12 @@ ImHacker = {
 		var self = this;
 		localStorage.logFormat  = self.settings.logFormat.val();
 		localStorage.formatName = self.settings.formatName.val();
+		localStorage.timeThreshold = self.settings.timeThreshold.val();
+		localStorage.ignorePath = self.settings.ignorePath.val();
 		$('#format-name').text(localStorage.formatName);
+
+		self.timeThreshold = +localStorage.timeThreshold;
+		self.ignorePath    = new RegExp(localStorage.ignorePath);
 	},
 
 	prepareSocket : function () {
@@ -108,7 +132,7 @@ ImHacker = {
 			var line = data.line;
 			if (!/GET|POST|HEAD|PUT/.test(line)) return;
 
-			self.updateLog(data);
+			// self.updateLog(data);
 
 			var row = {};
 			if (localStorage.formatName == 'tsv') {
@@ -121,7 +145,7 @@ ImHacker = {
 
 				row['method']   = r[0];
 				row['path']     = r[1];
-				row['protocol'] = r[1];
+				row['protocol'] = r[2];
 				if (row.status && !row.code) row['code'] = +row.status;
 				row['millisec'] = +row['taken'];
 				row['datetime'] = ImHacker.parseDateTime(row['time']);
@@ -130,6 +154,7 @@ ImHacker = {
 				if (!row) return;
 			}
 
+			if (self.ignorePath.test(row.path)) return;
 			self.updateResponseStats(row);
 			} catch (e) { alert(e) }
 		});
@@ -203,13 +228,28 @@ ImHacker = {
 			if (range > 10000) range = 10000; // over 10 sec
 			timeStats[range]++;
 			timeStats.total++;
+
+			if (timeStats[row.method]) {
+				timeStats[row.method][range]++;
+				timeStats[row.method].total++;
+			}
+
 			if (timeStats.fastest > millisec) timeStats.fastest = millisec;
 			if (timeStats.slowest < millisec) timeStats.slowest = millisec;
+
+			if (millisec > self.timeThreshold * 1000) {
+				appendError('slow (' + (millisec / 1000).toFixed(2) + ' sec)', row.path.replace(/\?.+$/, ''));
+			}
 		}
 
 		if (row.code) {
-			self.codeStats[Math.floor(row.code / 100) * 100]++;
+			var x = Math.floor(row.code / 100) * 100;
+			self.codeStats[x]++;
 			self.codeStats.total++;
+
+			if (x == 500) {
+				appendError(row.code, row.path);
+			}
 		}
 
 		if (row.method) {
@@ -230,24 +270,84 @@ ImHacker = {
 			}
 		}
 
+		if (row.addr) {
+			var id = row.addr;
+			if (!self.trackingStats[id]) {
+				self.trackingStats[id] = {
+					x : Math.random(),
+					id : id,
+					color: '#' + Math.random().toString(16).slice(2, 8),
+					log : []
+				};
+			}
+
+			self.trackingStats[id].log.unshift({
+				method : row.method,
+				path : row.path,
+				time : row.datetime / 1000
+			});
+		}
+
 		self.redraw = true;
+
+		function appendError (error, path) {
+			if (!self.errorStats[path]) {
+				self.errorStats[path] = {
+					error: error,
+					path: path,
+					time: new Date().getTime(),
+					count: 1
+				};
+			} else {
+				self.errorStats[path].count++;
+				self.errorStats[path].error = error;
+				self.errorStats[path].time = new Date().getTime();
+			}
+		}
 	},
 
-	updateGraphs : function () {
+	drawGraphs : function () {
 		var self = this;
 
 		requestAnimationFrame(function () {
 			if (self.redraw) {
-				updateTimeStats();
-				updateCodeStats();
-				updateMethodStats();
+				drawTimeStats();
+				drawCodeStats();
+				drawMethodStats();
+				drawErrorStats();
 				self.redraw = false;
 			}
-			updateRequestHistory();
+			drawRequestHistory();
+			drawTrackingStats();
 			requestAnimationFrame(arguments.callee);
 		});
 
-		function updateTimeStats () {
+		function drawErrorStats () {
+			var errorStats = self.errorStats;
+			var container  = $('#error-stats');
+
+			var errors = [];
+			for (var key in errorStats) if (errorStats.hasOwnProperty(key))
+				errors.push(errorStats[key]);
+
+			errors.sort(function (a, b) {
+				return b.time - a.time;
+			});
+
+			while (errors.length > 10) {
+				delete errorStats[errors.pop().path];
+			}
+
+			container.empty();
+			for (var i = 0, it; (it = errors[i]); i++) {
+				var row = $('<tr></tr>').appendTo(container);
+				$('<th><span class="label label-important"></span></th>').find('span').text(it.error).end().appendTo(row);
+				$('<th></th>').text(it.path).appendTo(row);
+				$('<td></td>').text(it.count).appendTo(row);
+			}
+		}
+
+		function drawTimeStats () {
 			var timeStats = self.timeStats;
 			var canvas = document.getElementById('time-graph');
 			var ctx    = canvas.getContext('2d');
@@ -263,7 +363,7 @@ ImHacker = {
 
 			for (var i = 0; i < 10; i++) {
 				if (i > 0) {
-					ctx.fillStyle = "#CCCCCC";
+					ctx.fillStyle = "#333333";
 					ctx.fillRect(w / 10 * i, 0, 1, h);
 					ctx.fillRect(0, h / 10 * i, w, 1);
 				}
@@ -273,31 +373,59 @@ ImHacker = {
 				ctx.fillText((100 - i * 10) + "%", 2, h / 10 * i + 10);
 			}
 
+			ctx.lineWidth = 5;
+			(function () {
+				ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+				ctx.beginPath();
+				ctx.moveTo(0, h);
+				for (var range = 0, count = 0; range <= 10000; range += 100) {
+					count += timeStats[range];
+					var rate = count / timeStats.total;
+					ctx.lineTo(w / 10000 * range, h * (1 - rate));
+				}
+				ctx.stroke();
+			})();
+
 			ctx.lineWidth = 3;
-			ctx.strokeStyle = "#990000";
 
-			ctx.beginPath();
-			ctx.moveTo(0, h);
-			for (var range = 0, count = 0; range <= 10000; range += 100) {
-				count += timeStats[range];
-				var rate = count / timeStats.total;
-				ctx.lineTo(w / 10000 * range, h * (1 - rate));
-			}
-			ctx.stroke();
+			(function () {
+				ctx.strokeStyle = "#F89406";
+				ctx.beginPath();
+				ctx.moveTo(0, h);
+				for (var range = 0, count = 0; range <= 10000; range += 100) {
+					count += timeStats.POST[range];
+					var rate = count / timeStats.POST.total;
+					ctx.lineTo(w / 10000 * range, h * (1 - rate));
+				}
+				ctx.stroke();
+			})();
 
-			self.time.fastest.text(self.timeStats.fastest.toFixed(2));
-			self.time.slowest.text(self.timeStats.slowest.toFixed(2));
+			(function () {
+				ctx.strokeStyle = "#468847";
+				ctx.beginPath();
+				ctx.moveTo(0, h);
+				for (var range = 0, count = 0; range <= 10000; range += 100) {
+					count += timeStats.GET[range];
+					var rate = count / timeStats.GET.total;
+					ctx.lineTo(w / 10000 * range, h * (1 - rate));
+				}
+				ctx.stroke();
+			})();
+
+			self.time.fastest.text(Math.floor(self.timeStats.fastest) + ' msec');
+			self.time.slowest.text(Math.floor(self.timeStats.slowest) + ' msec');
 		}
 
-		function updateCodeStats () {
+		function drawCodeStats () {
 			var codeStats = self.codeStats;
 			for (var key in codeStats) if (codeStats.hasOwnProperty(key)) {
 				if (!self.code[key]) continue;
-				self.code[key].text(codeStats[key]);
+				var percent = Math.round(codeStats[key] / codeStats.total * 100);
+				self.code[key].text(codeStats[key] + ' (' + percent + '%)');
 			}
 		}
 
-		function updateMethodStats () {
+		function drawMethodStats () {
 			var methodStats = self.methodStats;
 			for (var key in methodStats) if (methodStats.hasOwnProperty(key)) {
 				if (!self.method[key]) continue;
@@ -305,7 +433,7 @@ ImHacker = {
 			}
 		}
 
-		function updateRequestHistory () {
+		function drawRequestHistory () {
 			var requestHistoryMap = self.requestHistoryMap;
 			var requestHistory = self.requestHistory;
 			var canvas = document.getElementById('history-graph');
@@ -328,12 +456,12 @@ ImHacker = {
 			ctx.fillStyle   = "#999999";
 			ctx.font = "10px Arial";
 			ctx.fillText(scale / 2 + ' req/sec', 2, h / 2 - 2); // '
-			ctx.fillStyle   = "#CCCCCC";
+			ctx.fillStyle   = "#333333";
 			ctx.fillRect(0, h / 2, w, 1);
 
 			var now = Math.floor(new Date().getTime() / 1000 / self.timeSlice) * self.timeSlice;
 			for (var i = 0, len = w / 5; i < len; i++) {
-				ctx.fillStyle = (now % 2 === 0) ? "#999999" : "#cccccc";
+				ctx.fillStyle = (now % 2 === 0) ? "#999999" : "#666666";
 				if (requestHistoryMap[now]) {
 					var rh = requestHistoryMap[now].count / scale * h;
 					var x  = w - (i * 5);
@@ -344,9 +472,55 @@ ImHacker = {
 			}
 		}
 
+		function drawTrackingStats () {
+			var canvas = document.getElementById('tracking-graph');
+			var ctx = canvas.getContext('2d');
+			var w   = +canvas.width;
+			var h   = +canvas.height;
+
+			var ph  = 10; // pixel/sec
+
+			var data = self.trackingStats;
+
+			var now = new Date().getTime() / 1000;
+
+			ctx.clearRect(0, 0, w, h);
+			ctx.font = "10px Arial";
+
+			ctx.save();
+			for (var id in data) if (data.hasOwnProperty(id)) {
+				var d = data[id];
+				if (d.log[0].time < now - 60) {
+					delete data[id];
+					continue;
+				}
+				if (d.log.length < 2) continue;
+
+				ctx.fillStyle = d.color;
+				ctx.strokeStyle = d.color;
+
+				var x = d.x * w;
+
+				ctx.beginPath();
+				ctx.moveTo(x, (now - d.log[0].time) * ph);
+				ctx.lineTo(x, (now - d.log[d.log.length - 1].time) * ph);
+				ctx.stroke();
+				ctx.fillText(id, x - 5, (now - d.log[0].time) * ph - 10);
+
+				ctx.beginPath();
+				for (var i = 0, it; (it = d.log[i]); i++) {
+					var y = (now - it.time) * ph;
+					ctx.fillText(it.method + ' ' + it.path, x + 7, y + 3);
+					ctx.arc(x, y, 5, 0, (Math.PI / 180) * 360, false);
+				}
+				ctx.fill();
+				ctx.restore();
+			}
+		}
+
 		function requestAnimationFrame (callback) {
 			// (window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame || setTimeout)(callback, 16);
-			setTimeout(callback, 1000);
+			setTimeout(callback, 200);
 		}
 	}
 };
@@ -385,7 +559,7 @@ ImHacker.AccessLogParser = {
 			var r = ret['r'].split(/ /);
 			ret['method']   = r[0];
 			ret['path']     = r[1];
-			ret['protocol'] = r[1];
+			ret['protocol'] = r[2];
 		}
 		ret['code'] = +ret['s'];
 		ret['millisec'] =
@@ -393,7 +567,18 @@ ImHacker.AccessLogParser = {
 			ret['d'] ? +ret['d'] * 1000:
 			NaN;
 		ret['datetime'] = ImHacker.parseDateTime(ret['t']);
+		ret['addr']     = ret['a'] || ret['h'];
 		return ret;
+	}
+};
+
+ImHacker.UserAgent = {
+	isBot : function (str) {
+		return (/crawler|bot|spider/i).test(str);
+	},
+
+	isTouch : function (str) {
+		return (/(?:Nintendo (?:3DS|DSi)|iP(?:[ao]d|hone))/).test(str);
 	}
 };
 

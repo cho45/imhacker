@@ -3,7 +3,7 @@
 	<head>
 		<title></title>
 		<meta charset="utf-8"/>
-		<link rel="stylesheet" type="text/css" href="/bootstrap/css/bootstrap.min.css"/>
+		<link rel="stylesheet" type="text/css" href="/bootstrap/css/cyborg.bootstrap.min.css"/>
 		<link rel="stylesheet" type="text/css" href="/bootstrap/css/bootstrap-responsive.min.css"/>
 
 		<script type="text/javascript" src="/js/jquery-1.7.2.min.js"></script>
@@ -14,11 +14,11 @@
 
 		<style>
 			body {
-				padding: 30px 0 0 0;
+				padding: 10px 0 0 0;
 			}
 
 			#windows .btn {
-				padding: 5px 24px;
+				padding: 5px 24.4px;
 			}
 
 			#log {
@@ -37,7 +37,15 @@
 			}
 
 			canvas {
-				border: 1px solid #ccc;
+				border: 1px solid #666;
+			}
+
+			.top-tab-content {
+				display: none;
+			}
+
+			.top-tab-content.active {
+				display: block;
 			}
 		</style>
 
@@ -47,11 +55,16 @@
 	</head>
 	<body>
 		<div class="container">
-			<div class="row">
-				<div class="span6">
+			<div class="row" style="position: relative">
+				<ul class="nav nav-tabs span6" style="padding: 50px 0 0 0">
+					<li class="active"><a href="#main" data-toggle="tab">main</a></li>
+					<li><a href="#tracking" data-toggle="tab">tracking</a></li>
+				</ul>
+				<div class="span6" style="position: absolute: top: 0; right: 0">
 					<h1>
 						<span class="label label-info">screen window</span>
 						<small style="font-size: 12px">select screen window number to watch</small>
+						<a class="btn btn-mini" data-toggle="modal" href="#settings" style="position: absolute; top: 20px; right: 2px;"><i class="icon-cog"></i> Settings (<span id="format-name"></span>)</a>
 					</h1>
 					<div class="btn-toolbar" id="windows">
 						<div class="btn-group">
@@ -68,151 +81,169 @@
 						</div>
 					</div>
 				</div>
-				<div class="span6" style="position: relative">
-					<a class="btn btn-small" data-toggle="modal" href="#settings" style="position: absolute; top: 0; right: 0;"><i class="icon-cog"></i> Settings (<span id="format-name"></span>)</a>
-				</div>
 			</div>
 
-			<div class="row">
-				<div class="span12">
-					<h1>
-						<span class="label label-info">request history</span>
-						<small style="font-size: 12px">req/sec</small>
-					</h1>
-					<canvas id="history-graph" width="1170" height="100"></canvas>
-				</div>
-			</div>
-
-			<div class="row">
-				<div class="span6" style="position: relative">
-					<h1>
-						<span class="label label-info">response time graph</span>
-						<small style="font-size: 12px">y=rate, x=sec</small>
-					</h1>
-					<canvas id="time-graph" width="560" height="300"></canvas>
-					<div style="position: absolute; bottom: 40px; right: 20px">
-						<span class="label label-success">fastest</span>&nbsp;<span id="time-fastest">0</span>
-						<span class="label label-success">slowest</span>&nbsp;<span id="time-slowest">0</span>
+			<div class="active top-tab-content" id="main">
+				<div class="row">
+					<div class="span12">
+						<h1>
+							<span class="label label-info">request history</span>
+							<small style="font-size: 12px">req/sec</small>
+						</h1>
+						<canvas id="history-graph" width="1170" height="100"></canvas>
 					</div>
 				</div>
-				<div class="span3">
-					<h1>
-						<span class="label label-info">response code</span>
-					</h1>
 
-					<!-- div class="bar-graph-container label" id="response-code-graph">
-						<div title="20x 80%" style="width: 84%;" class="bar-graph-bar label-success">
-							20x
-						</div><div title="30x 10%" style="width: 10%;" class="bar-graph-bar label-info">
-							30x
-						</div><div title="40x 5%" style="width: 5%;" class="bar-graph-bar label-warning">
-							40x
-						</div><div title="50x 5%" style="width: 1%;" class="bar-graph-bar label-important">
-							50x
+				<div class="row">
+					<div class="span6" style="position: relative">
+						<h1>
+							<span class="label label-info">response time graph</span>
+							<small style="font-size: 12px">
+								<span style="color: #468847; font-weight: bold; font-size: 80%;">GET</span> <span style="color: #F89406; font-weight: bold; font-size: 80%;">POST</span>
+								y=rate, x=sec
+							</small>
+						</h1>
+						<canvas id="time-graph" width="560" height="300"></canvas>
+						<div style="position: absolute; bottom: 40px; right: 20px">
+							<span class="label label-success">fastest</span>&nbsp;<span id="time-fastest">0</span>
+							<span class="label label-success">slowest</span>&nbsp;<span id="time-slowest">0</span>
 						</div>
-						<script>
-							$('#response-code-graph').tooltip({ selector: "div.bar-graph-bar" });
-						</script>
-						<style scoped>
-							.bar-graph-container {
-								border: 1px solid #ccc;
-								padding: 0;
-								cursor: default;
-							}
-							.bar-graph-bar {
-								display: inline-block;
-								padding: 0;
-								margin: 0;
-								height: 15px;
-								font-weight: bold;
-								color: #fff;
-								font-size: 10px;
-								line-height:15px;
-								text-align: center;
-								overflow: hidden;
-								text-overflow: ellipsis;
-							}
-						</style>
-					</div -->
-					<table class="table table-condensed">
-						<tr>
-							<th>
-								<span class="label label-success">20x : success</span>
-							</th>
-							<td>
-								<span id="code-20x">0</span>
-							</td>
-						</tr>
-						<tr>
-							<th>
-								<span class="label label-warning">30x : redirect</span>
-							</th>
-							<td>
-								<span id="code-30x">0</span>
-							</td>
-						</tr>
-						<tr>
-							<th>
-								<span class="label label-warning">40x : client error</span>
-							</th>
-							<td>
-								<span id="code-40x">0</span>
-							</td>
-						</tr>
-						<tr>
-							<th>
-								<span class="label label-important">50x : server error</span>
-							</th>
-							<td>
-								<span id="code-50x">0</span>
-							</td>
-						</tr>
-					</table>
+					</div>
+					<div class="span3">
+						<h1>
+							<span class="label label-info">response code</span>
+						</h1>
+
+						<!-- div class="bar-graph-container label" id="response-code-graph">
+							<div title="20x 80%" style="width: 84%;" class="bar-graph-bar label-success">
+								20x
+							</div><div title="30x 10%" style="width: 10%;" class="bar-graph-bar label-info">
+								30x
+							</div><div title="40x 5%" style="width: 5%;" class="bar-graph-bar label-warning">
+								40x
+							</div><div title="50x 5%" style="width: 1%;" class="bar-graph-bar label-important">
+								50x
+							</div>
+							<script>
+								$('#response-code-graph').tooltip({ selector: "div.bar-graph-bar" });
+							</script>
+							<style scoped>
+								.bar-graph-container {
+									border: 1px solid #ccc;
+									padding: 0;
+									cursor: default;
+								}
+								.bar-graph-bar {
+									display: inline-block;
+									padding: 0;
+									margin: 0;
+									height: 15px;
+									font-weight: bold;
+									color: #fff;
+									font-size: 10px;
+									line-height:15px;
+									text-align: center;
+									overflow: hidden;
+									text-overflow: ellipsis;
+								}
+							</style>
+						</div -->
+						<table class="table table-condensed">
+							<tr>
+								<th>
+									<span class="label label-success">20x : success</span>
+								</th>
+								<td>
+									<span id="code-20x">0</span>
+								</td>
+							</tr>
+							<tr>
+								<th>
+									<span class="label label-warning">30x : redirect</span>
+								</th>
+								<td>
+									<span id="code-30x">0</span>
+								</td>
+							</tr>
+							<tr>
+								<th>
+									<span class="label label-warning">40x : client error</span>
+								</th>
+								<td>
+									<span id="code-40x">0</span>
+								</td>
+							</tr>
+							<tr>
+								<th>
+									<span class="label label-important">50x : server error</span>
+								</th>
+								<td>
+									<span id="code-50x">0</span>
+								</td>
+							</tr>
+						</table>
+					</div>
+					<div class="span3">
+						<h1>
+							<span class="label label-info">request method</span>
+						</h1>
+						<table class="table table-condensed">
+							<tr>
+								<th>
+									<span class="label label-success">GET</span>
+								</th>
+								<td>
+									<span id="method-GET">0</span>
+								</td>
+							</tr>
+							<tr>
+								<th>
+									<span class="label label-warning">POST</span>
+								</th>
+								<td>
+									<span id="method-POST">0</span>
+								</td>
+							</tr>
+							<tr>
+								<th>
+									<span class="label label-info">HEAD</span>
+								</th>
+								<td>
+									<span id="method-HEAD">0</span>
+								</td>
+							</tr>
+							<tr>
+								<th>
+									<span class="label">OTHERS</span>
+								</th>
+								<td>
+									<span id="method-OTHERS">0</span>
+								</td>
+							</tr>
+						</table>
+					</div>
+					<div class="span6">
+						<table class="table table-condensed" id="error-stats" style="width: 100%; overflow: hidden; text-overflow: ellipsis;">
+						</table>
+					</div>
 				</div>
-				<div class="span3">
-					<h1>
-						<span class="label label-info">request method</span>
-					</h1>
-					<table class="table table-condensed">
-						<tr>
-							<th>
-								<span class="label label-success">GET</span>
-							</th>
-							<td>
-								<span id="method-GET">0</span>
-							</td>
-						</tr>
-						<tr>
-							<th>
-								<span class="label label-warning">POST</span>
-							</th>
-							<td>
-								<span id="method-POST">0</span>
-							</td>
-						</tr>
-						<tr>
-							<th>
-								<span class="label label-info">HEAD</span>
-							</th>
-							<td>
-								<span id="method-HEAD">0</span>
-							</td>
-						</tr>
-						<tr>
-							<th>
-								<span class="label">OTHERS</span>
-							</th>
-							<td>
-								<span id="method-OTHERS">0</span>
-							</td>
-						</tr>
-					</table>
+
+			</div>
+
+			<div class="top-tab-content" id="tracking">
+				<div class="row">
+					<div class="span12">
+						<h1>
+							<span class="label label-info">request tracking</span>
+						</h1>
+						<canvas id="tracking-graph" width="1170" height="450"></canvas>
+					</div>
 				</div>
 			</div>
 
 			<div id="log"></div>
 
-			<div id="settings" class="modal hide" style="width: 800px; margin: -250px 0 0 -400px">
+			<div id="settings" class="modal hide" style="width: 1000px; margin: -250px 0 0 -500px">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal">×</button>
 					<h3>Settings</h3>
@@ -220,9 +251,27 @@
 				<div class="modal-body">
 					<form class="form-horizontal" id="form-settings">
 						<div class="control-group">
-							<label class="control-label" for="">Log format</label>
+							<label class="control-label" for="time-threshold">Slow threshold</label>
 							<div class="controls">
-								<select name="format-name">
+								<div class="input-append">
+									<input class="span1" type="text" value="" name="time-threshold" id="time-threshold"/><span class="add-on">sec</span>
+								</div>
+							</div>
+						</div>
+
+						<div class="control-group">
+							<label class="control-label" for="ignore-path">Ignore path</label>
+							<div class="controls">
+								<div class="input-prepend">
+									<span class="add-on">RegExp</span><input class="span6" type="text" value="" name="ignore-path" id="ignore-path"/>
+								</div>
+							</div>
+						</div>
+
+						<div class="control-group">
+							<label class="control-label" for="format-name">Log format</label>
+							<div class="controls">
+								<select name="format-name" id="format-name">
 									<option value="combined">combined</option>
 									<option value="common">common</option>
 									<option value="tsv">tsv</option>
@@ -230,6 +279,13 @@
 								<p style="padding: 10px 10px 0 0">
 									<textarea name="log-format" style="width: 100%; height: 10em">
 									</textarea>
+								</p>
+								<p class="help-block">
+									<strong>How to:</strong>
+									Just copy and paste from your apache.conf.
+								</p>
+								<p class="help-block">
+									<strong>'tsv'</strong> is special case of format like: <samp>time:...\tua:...\t...addr:...\tstatus:...\ttaken:...\n</samp>
 								</p>
 							</div>
 						</div>
