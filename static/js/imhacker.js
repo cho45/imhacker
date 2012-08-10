@@ -342,7 +342,7 @@ ImHacker = {
 				return b.time - a.time;
 			});
 
-			while (errors.length > 10) {
+			while (errors.length > 7) {
 				delete errorStats[errors.pop().path];
 			}
 

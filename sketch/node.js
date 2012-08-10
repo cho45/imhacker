@@ -22,7 +22,7 @@ Array.apply(null, new Array(40)).forEach(function (_, i) {
 	(function () {
 		var method = (Math.random() < 0.1 ? 'POST' : 'GET');
 		var taken = method == 'GET' ? nrand(200, 700) : nrand(500, 3000);
-		if (taken < 0) taken = 0;
+		if (taken < 0) taken = 200;
 
 		var path  = Math.floor(nrand(0, 3));
 		if (path < 0) path = 0;
