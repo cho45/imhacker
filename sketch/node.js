@@ -40,10 +40,9 @@ Array.apply(null, new Array(40)).forEach(function (_, i) {
 			"ua:stdin"
 		].join("\t"));
 
-		var wait = ndrand(5000, 5000);
-		if (wait < 0) wait = 0;
+		var wait = lndrand(5000, 5000);
 
-		if (Math.random() < 0.30) {
+		if (Math.random() < 0.50) {
 			i = Math.floor(Math.random() * 255);
 		}
 
