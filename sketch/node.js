@@ -39,6 +39,6 @@ Array.apply(null, new Array(40)).forEach(function (_, i) {
 
 		var wait = nrand(5000, 5000);
 		if (wait < 0) wait = 0;
-		setTimeout(arguments.callee, Math.random() < 0.9 ? wait : 650000);
+		setTimeout(arguments.callee, wait);
 	})();
 });
