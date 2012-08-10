@@ -14,17 +14,20 @@ var paths = [
 	'/entry/barbaz'
 ];
 
-function nrand (u, s) {
+function ndrand (u, s) {
 	return Math.sqrt(-2 * Math.log(Math.random())) * Math.cos(2 * Math.PI * Math.random()) * s + u;
+}
+
+function lndrand (u, s) {
+	return Math.exp(ndrand(Math.log(u * u) - Math.log(u * u + s * s) / 2.0, Math.sqrt(Math.log(1 + s / u * s / u))));
 }
 
 Array.apply(null, new Array(40)).forEach(function (_, i) {
 	(function () {
 		var method = (Math.random() < 0.1 ? 'POST' : 'GET');
-		var taken = method == 'GET' ? nrand(200, 700) : nrand(500, 3000);
-		if (taken < 0) taken = 200;
+		var taken = method == 'GET' ? lndrand(200, 700) : lndrand(500, 3000);
 
-		var path  = Math.floor(nrand(0, 3));
+		var path  = Math.floor(ndrand(0, 3));
 		if (path < 0) path = 0;
 		if (path > (paths.length - 1)) path = 0;
 
@@ -37,7 +40,7 @@ Array.apply(null, new Array(40)).forEach(function (_, i) {
 			"ua:stdin"
 		].join("\t"));
 
-		var wait = nrand(5000, 5000);
+		var wait = ndrand(5000, 5000);
 		if (wait < 0) wait = 0;
 
 		if (Math.random() < 0.30) {
