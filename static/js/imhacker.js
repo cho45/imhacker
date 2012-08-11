@@ -328,10 +328,6 @@ ImHacker = {
 			if (!self.requestHistoryMap[timeSlice]) {
 				self.requestHistoryMap[timeSlice] = { time : timeSlice, count: 1 };
 				self.requestHistory.push(self.requestHistoryMap[timeSlice]);
-				while (self.requestHistory.length > 1000) {
-					var tooOld = self.requestHistory.shift();
-					delete self.requestHistoryMap[tooOld.time];
-				}
 			} else {
 				self.requestHistoryMap[timeSlice].count++;
 			}
@@ -509,6 +505,12 @@ ImHacker = {
 			var h      = +canvas.height;
 
 			var barw   = 5;
+			var len    = w / barw;
+
+			while (self.requestHistory.length > len) {
+				var tooOld = self.requestHistory.shift();
+				delete self.requestHistoryMap[tooOld.time];
+			}
 
 			var max = 0;
 			for (var i = 0, it; (it = requestHistory[i]); i++) if (it.count > max) max = it.count;
@@ -527,7 +529,7 @@ ImHacker = {
 			ctx.fillRect(0, h / 2, w, 1);
 
 			var now = Math.floor(new Date().getTime() / 1000 / self.timeSlice) * self.timeSlice;
-			for (var i = 0, len = w / 5; i < len; i++) {
+			for (var i = 0; i <= len; i++) {
 				ctx.fillStyle = (now % 2 === 0) ? "#999999" : "#666666";
 				if (requestHistoryMap[now]) {
 					var rh = requestHistoryMap[now].count / scale * h;
