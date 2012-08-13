@@ -15,6 +15,11 @@ You just run tail -f command on any window, and tell the window number to ImHack
 
 Run tail -f command on any other GNU screen window, and click on the button on ImHacker.
 
+## Setting
+
+On first access, ImHacker open the setting window to set a format of log.
+In most every case, you just copy and paste LogFormat line from your apache.conf to the textarea.
+
 Demo
 ====
 
