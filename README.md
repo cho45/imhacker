@@ -13,4 +13,13 @@ You just run tail -f command on any window, and tell the window number to ImHack
 	$ npm install # install dependencies
 	$ node app.js
 
+Demo
+====
+
+http://localhost:3000/#demo
+
+Scripting
+=========
+
+bin/imhacker-in: read stdin and send it to ImHacker server (& client)
 
