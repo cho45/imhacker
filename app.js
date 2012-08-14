@@ -40,9 +40,13 @@ app.post('/in', function (req, res) {
 io.sockets.on('connection', function (socket) {
 	var watching = {};
 	socket.on('watch', function (data) {
-		if (!watching[data.window]) watching[data.window] = wscreen.watchScreenWindow(data.window, function (line) {
-			socket.emit('log', { target: data.window, line : line });
-		});
+		try {
+			if (!watching[data.window]) watching[data.window] = wscreen.watchScreenWindow(data.window, function (line) {
+				socket.emit('log', { target: data.window, line : line });
+			});
+		} catch (e) {
+			console.log(e);
+		}
 	});
 	socket.on('unwatch', function (data) {
 		if (watching[data.window]) {
