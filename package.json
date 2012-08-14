@@ -6,6 +6,7 @@
   "dependencies": {
     "socket.io": "~0.9.9",
     "ejs": "*",
+    "micro-strptime": "*",
     "express": "3.x"
   },
   "devDependencies": {},
