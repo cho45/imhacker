@@ -5,7 +5,7 @@ var path    = require('path');
 var router  = new require('routes').Router();
 var st      = require('st');
 var url     = require('url');
-var root    = path.join(__filename, '..');
+var root    = __dirname;
 
 var wscreen = require('./lib/watch_screen');
 
