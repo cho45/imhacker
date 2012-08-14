@@ -1,36 +1,35 @@
 #!/usr/bin/env node
 
 var http    = require('http');
-var express = require('express');
 var path    = require('path');
+var router  = new require('routes').Router();
+var st      = require('st');
+var url     = require('url');
+var root    = path.join(__filename, '..');
 
 var wscreen = require('./lib/watch_screen');
 
-var app    = express();
-var server = http.createServer(app);
+var server = http.createServer(function (req, res) {
+	try {
+		var pathname = url.parse(req.url).pathname;
+		var route = router.match(pathname);
+		if (!route) throw { code : 404 };
+		route.fn(req, res);
+	} catch (e) {
+		var code = e.code || 500;
+		res.writeHead(code);
+		res.end(code + "\n" + String(e), 'utf-8');
+	}
+});
+
 var io     = require('socket.io').listen(server);
 
-app.configure(function(){
-	app.set('views', __dirname + '/views');
-	app.set('view engine', 'ejs');
-	app.use(express.favicon());
-	app.use(express.logger('dev'));
-	app.use(express.bodyParser());
-	app.use(express.methodOverride());
-	app.use(app.router);
-	app.use(express.static(path.join(__dirname, 'static'))); // no warnings
-});
+router.addRoute(new RegExp('/(js|css|images|bootstrap)'), serve('/', path.join(root, 'static')));
+router.addRoute('/', serve('/', path.join(root, 'views')));
 
-app.configure('development', function(){
-	app.use(express.errorHandler());
-});
-
-app.get('/', function (req, res) {
-	res.render('index', {});
-});
-
-app.post('/in', function (req, res) {
-	var target = req.query.name;
+router.addRoute('/in', function (req, res) {
+	var query  = url.parse(req.url, true).query;
+	var target = query.name;
 	req.setEncoding('utf-8');
 	req.on('data', function (data) {
 		io.sockets.emit('log', { target : target, line : data });
@@ -77,3 +76,10 @@ process.on('SIGTERM', function () {
 	}
 	process.exit();
 });
+
+function serve (url, path) {
+	var mount = st({ path : path, url : url, index: 'index.html' });
+	return function (req, res) {
+		if (!mount(req, res)) throw { code : 404 };
+	};
+}
