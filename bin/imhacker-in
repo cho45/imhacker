@@ -18,6 +18,3 @@ process.stdin.on('data', function (chunk) {
 	req.write(chunk);
 });
 
-setInterval(function () {
-}, 1000);
-
