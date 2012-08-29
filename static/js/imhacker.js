@@ -42,6 +42,7 @@ ImHacker = {
 			fastest : $('#time-fastest'),
 			slowest : $('#time-slowest')
 		};
+		self.reqPerSec = $('#req-per-sec');
 		self.redraw = true;
 
 		self.settings = $('#settings');
@@ -491,8 +492,12 @@ ImHacker = {
 				delete self.requestHistoryMap[tooOld.time];
 			}
 
-			var max = 0;
-			for (var i = 0, it; (it = requestHistory[i]); i++) if (it.count > max) max = it.count;
+			var max = 0, sum = 0;
+			for (var i = 0, it; (it = requestHistory[i]); i++) {
+				if (it.count > max) max = it.count;
+				sum += it.count;
+			}
+			var avg = sum / requestHistory.length;
 
 			var scale = Math.max(Math.ceil(max / 10) * 10, 10);
 
@@ -518,6 +523,8 @@ ImHacker = {
 				}
 				now = now - self.timeSlice;
 			}
+
+			self.reqPerSec.text(Math.round(avg));
 		}
 
 		function drawTrackingStats () {
