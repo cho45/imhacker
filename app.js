@@ -78,8 +78,7 @@ process.on('SIGTERM', function () {
 });
 
 function serve (url, path) {
-	var mount = st({ path : path, url : url, index: 'index.html' });
 	return function (req, res) {
-		if (!mount(req, res)) throw { code : 404 };
+		if (!st({ path : path, url : url, index: 'index.html' })(req, res)) throw { code : 404 };
 	};
 }
