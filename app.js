@@ -8,6 +8,7 @@ var url     = require('url');
 var root    = __dirname;
 
 var wscreen = require('./lib/watch_screen');
+var config  = require('./lib/config');
 
 var server = http.createServer(function (req, res) {
 	try {
@@ -61,7 +62,8 @@ io.sockets.on('connection', function (socket) {
 	});
 });
 
-server.listen(3000);
+console.log('Open http://localhost:' + config.port + '/');
+server.listen(config.port);
 
 process.on('SIGINT', function () {
 	for (var key in io.sockets.sockets) if (io.sockets.sockets.hasOwnProperty(key)) {

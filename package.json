@@ -1,11 +1,12 @@
 {
   "name": "imhacker",
   "version": "0.0.0",
-  "description": "ERROR: No README.md file found!",
+  "description": "ImHacker is a real-time access log analyzer.",
   "main": "app.js",
   "dependencies": {
     "socket.io": "~0.9.9",
     "micro-strptime": "*",
+    "micro-location": "*",
     "routes": "~0.1.1",
     "async-cache": "*",
     "st": "*"
@@ -16,5 +17,5 @@
   },
   "repository": "",
   "author": "cho45",
-  "license": "BSD"
+  "license": "MIT"
 }

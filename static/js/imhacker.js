@@ -508,7 +508,7 @@ ImHacker = {
 			ctx.lineWidth = 1;
 			ctx.fillStyle   = "#999999";
 			ctx.font = "10px Arial";
-			ctx.fillText(scale / 2 + ' req/sec', 2, h / 2 - 2); // '
+			ctx.fillText(scale / 2 + ' req/sec', 2, h / 2 - 2); // ' )
 			ctx.fillStyle   = "#333333";
 			ctx.fillRect(0, h / 2, w, 1);
 
