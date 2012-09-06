@@ -1,6 +1,6 @@
 {
   "name": "imhacker",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "ImHacker is a real-time access log analyzer.",
   "main": "app.js",
   "dependencies": {
